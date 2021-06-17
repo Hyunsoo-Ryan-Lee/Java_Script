@@ -1,0 +1,89 @@
+1. 비동기 구현 API
+    1. XMLHttpRequest()
+        - 브라우저에 내장되어 있는 비동기용 통신 객체
+        - 사용을 위해서는 객체 생성
+            new XMLHttpRequest()
+        - 보유하고 있는 속성들로 비동기 통신
+            client와 server간에 통신사가 주고받는 정보들이 다양하게 있음
+            f12로 개발자 tool의 다양한 정보 확인 가능
+
+    2. onreadystatechange
+        - server와 client 통신시 지속적인 변화 상태 파악 가능
+        - 이 속성에 대입해 놓은 식이 자동 실행 
+            >> 함수식 등록 + 적합한 시점에 자동 호출 -> Call Back 함수!
+        - 시작-진행-끝에 이르는 과정동안 감지, 자동으로 진행사항 파악 가능한 기능
+
+    3. readyState
+        - 0~4까지 변화되는 값을 보유하게 되는 속성
+        - 브라우저와 서버간에 통신시 진행 상황에 따른 상태값을 자동 보유
+            0: 요청 시작 준비
+            1: 요청 시작
+            2: 요청 완료
+            3: 응답 진행
+            4: 요청 종료 및 응답 준비
+
+    4. status
+        - 200 : 정상 응답
+        - 404 : 없는 URL 지원 요청에 따른 응답 (page not found)
+        - 500 : 서버 시스템 문제 발생시 응답 코드
+                (개발 코드, 시스테 사양 등 다양한 서버단 문제)
+
+    5. responseText & responseXML
+        - 서버가 응답한 data를 보유하게 되는 속성(변수)
+        - responseXML : xml 포맷 data 만 수용 가능
+        - responseText : xml 제외한 모든 data 수용
+
+function myAjax2() {
+            const xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    data = this.responseText;
+                    data = JSON.parse(data);
+                    document.getElementById("ename").value = data.ename;
+                    document.getElementById("sal").value = data.sal;
+                }
+            };
+            xhttp.open("POST", "getemp");
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhttp.send("empno="+document.getElementById("empno").value);
+        }
+
+POST 방식으로 넘길 떄
+    xhttp.open("POST", "getemp");
+    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhttp.send("empno="+document.getElementById("empno").value);
+
+GET 방식으로 넘길 때
+    xhttp.open("GET", "getemp");
+    xhttp.send("GET?empno="+document.getElementById("empno").value);
+
+
+
+Pattern
+
+1. 프로그램상에서도 정형화된 구조로 개발 권장
+2. WEB에서 권장하는 개발 구조
+    1. MVC Pattern
+        M - Model / business / core 데이터를 직접 다루는 핵심 기능
+        V - View / presentation / client 사용하는 화면
+            html/css/js & 서버에서 응답하는 동적 data를 출력할 수 있는 서버단 스크립트 언어
+            template engine(flask에 내장된 jinja2라는 엔진) - {{출력 data}}
+        C - Controller
+            중재자 기능 / 요청에 따른 비즈니스 로직 실행 지시, 응답을 위한 화면 지정
+            (에러 발생시 에러 처리, 정상응답시엔 정상응답 화면 지정)
+            입력된 data의 유효/무효 여부에 따라 응답 유효한 경우 다음 단계의 정상 로직 실행,
+            무효한 경우 다시 원점으로 page 이동하여 재입력 유도
+
+    2. DAO Pattern(Data Access Object)
+        - table의 권장 명명 규칙 : tableDAO
+        - sql 처리 로직으로 개발 권장
+
+    3. DTO(Data Transfer Object) / VO(Value Object pattern)
+        - data를 보유하게 되는 구조의 class
+        - 가령 : 회원가입자가 동시에 엄청..
+            해당 사이트에선 회원가입 처리 로직의 코드는 하나
+            문제는 회원별 데이터는 다 다름
+            입력데이터수가 회원별 많은 데이터 관리
+            회원별 데이터 보호를 위해 하나의 덩어리로 관리(객체=복합데이터)
+            회원이 입력한 모든 데이터를 보유할 수 있는 DTO 클래스 개발해서 객체 생성해서 활용 
+

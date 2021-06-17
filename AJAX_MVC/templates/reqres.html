@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+
+    <br><hr><br>
+    <div id="demo1"></div>
+    
+    <br><hr><br>
+
+    Brand : <input type="text" id="brand"><br>
+    Model : <input type="text" id="model"><br>
+    <button onclick="myAjax()">data 요청!</button>
+
+    <br><hr><br>
+    <h3>직원 정보</h3>
+    EMPNO : <input type="text" id="empno" placeholder="사번 입력"><br>
+    ENAME : <input type="text" id="ename"><br>
+    SALARY : <input type="text" id="sal"><br><br>
+    &nbsp;&nbsp;&nbsp;<textarea id="demo2" cols="30" rows="10"></textarea>
+    <button onclick="myAjax2()">검색</button>
+   
+    <!-- 비동기로 등록도 개발 
+        >> 버튼 추가시 등록정보들을 server에 전송
+        >> 등록 후 정상 응답시 직원 정보에 자동 출력 -->
+    <br><hr><br>
+    <h3>직원 등록</h3>
+    사원번호 : <input type="text" id="newEmpno"><br>
+    사원명 : <input type="text" id="newEname"><br>
+    사원급여 : <input type="text" id="newSal"><br>
+    <button onclick="insertEmp()">등록</button><br>
+    <div id="demo3"></div>
+    
+    
+    <br><hr><br>
+    <h3>직원 정보 수정 등록</h3>
+    사원번호 : <input type="text" id="upempno"><br>
+    사원명 : <input type="text" id="upename"><br>
+    사원급여 : <input type="text" id="upsal"><br>
+    <button onclick="updateEmp()">수정</button>
+
+    <br><hr><br>
+    사번 : <input type="text" id="delempno"><br>
+
+    <button onclick="deleteEmp()">직원 퇴사</button>
+
+
+    <script>
+        //삭제
+        function deleteEmp() {
+            const xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    alert("직원 정보가 삭제되었습니다.")
+                }
+            };
+            xhttp.open("POST", "delete");
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            queryString = "empno=" + document.getElementById("delempno").value; //delete를 위해선 empno 정보만 알면됨
+            xhttp.send(queryString);
+        }
+
+        //수정
+        function updateEmp() {
+            const xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    data = this.responseText;
+                    document.getElementById("demo3").innerText = data;
+                    alert("직원 정보가 수정되었습니다.")
+                    data = JSON.parse(data);
+                    document.getElementById("ename").value = document.getElementById("upename").value;
+                    document.getElementById("sal").value = document.getElementById("upsal").value;
+                    document.getElementById("empno").value = document.getElementById('upempno').value;
+                }
+            };
+            xhttp.open("POST", "update");
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            queryString = "empno=" + document.getElementById("upempno").value
+                + "&ename=" + document.getElementById("upename").value
+                + "&sal=" + document.getElementById("upsal").value;
+            xhttp.send(queryString);
+
+        }
+
+        //등록
+        function insertEmp() {
+            const xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    data = this.responseText;
+                    alert("직원 정보가 등록되었습니다.")
+                    document.getElementById("demo3").innerText = data;
+                    data = JSON.parse(data);
+                    document.getElementById("empno").value = document.getElementById('newEmpno').value;
+                    document.getElementById("ename").value = document.getElementById("newEname").value;
+                    document.getElementById("sal").value = document.getElementById("newSal").value;
+                }
+            };
+            xhttp.open("POST", "insert");
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            queryString = "empno=" + document.getElementById("newEmpno").value
+                + "&ename=" + document.getElementById("newEname").value
+                + "&sal=" + document.getElementById("newSal").value;
+
+            xhttp.send(queryString);
+        };
+
+
+        //---------------------------------------------------------------------------
+        function myAjax() {
+            const xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+
+                    data = this.responseText;
+                    document.getElementById("demo1").innerText = data;
+                    data = JSON.parse(data);
+                    document.getElementById('brand').value = data.brand;
+                    document.getElementById('model').value = data.model;
+                }
+            };
+            xhttp.open("GET", "camera");
+            xhttp.send();
+        };
+
+
+        function myAjax2() {
+            const xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+
+                    data = this.responseText; // data = '{"ename":"SMITH", "sal":800}' 
+                    alert("직원 정보 호출!")
+                    data = JSON.parse(data);
+                    document.getElementById("demo2").innerHTML
+                    = "사번 : " + data.empno + "\n\n이름 : " + data.ename + "\n\n급여 : " + data.sal;
+                    document.getElementById("empno").value = data.empno;
+                    document.getElementById("ename").value = data.ename;
+                    document.getElementById("sal").value = data.sal;
+                }
+            };
+            xhttp.open("POST", "getemp");
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhttp.send("empno=" + document.getElementById("empno").value);
+
+        };
+
+    </script>
+</body>
+
+</html>
