@@ -6,67 +6,117 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+
+    <link rel="stylesheet" href="{{url_for('static' , filename='css/emp.css')}}">
+    <script src="{{url_for('static' , filename='js/emp.js')}}"></script>
 </head>
 
 <body>
 
+    <button onclick="allEmp()">직원 정보 불러오기</button><br><br>
+    <div id="demo4">
 
-    <br><hr><br>
-    <div id="demo1"></div>
-    
-    <br><hr><br>
-
+    </div>
+    <br>
+    <hr><br>
     Brand : <input type="text" id="brand"><br>
     Model : <input type="text" id="model"><br>
+    <div id="demo1"></div><br>
     <button onclick="myAjax()">data 요청!</button>
-
-    <br><hr><br>
+    <br>
+    <hr><br>
     <h3>직원 정보</h3>
     EMPNO : <input type="text" id="empno" placeholder="사번 입력"><br>
     ENAME : <input type="text" id="ename"><br>
     SALARY : <input type="text" id="sal"><br><br>
     &nbsp;&nbsp;&nbsp;<textarea id="demo2" cols="30" rows="10"></textarea>
     <button onclick="myAjax2()">검색</button>
-   
+
     <!-- 비동기로 등록도 개발 
         >> 버튼 추가시 등록정보들을 server에 전송
         >> 등록 후 정상 응답시 직원 정보에 자동 출력 -->
-    <br><hr><br>
+    <br>
+    <hr><br>
     <h3>직원 등록</h3>
     사원번호 : <input type="text" id="newEmpno"><br>
     사원명 : <input type="text" id="newEname"><br>
     사원급여 : <input type="text" id="newSal"><br>
     <button onclick="insertEmp()">등록</button><br>
     <div id="demo3"></div>
-    
-    
-    <br><hr><br>
+
+
+    <br>
+    <hr><br>
     <h3>직원 정보 수정 등록</h3>
     사원번호 : <input type="text" id="upempno"><br>
     사원명 : <input type="text" id="upename"><br>
     사원급여 : <input type="text" id="upsal"><br>
     <button onclick="updateEmp()">수정</button>
 
-    <br><hr><br>
+    <br>
+    <hr><br>
     사번 : <input type="text" id="delempno"><br>
 
     <button onclick="deleteEmp()">직원 퇴사</button>
+    <br>
+    <hr><br>
 
 
-    <script>
+
+    <!-- <script>
+        //전직원 조회
+        function allEmp() {
+            const xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    alert("모든 직원 정보 불러오기")
+                    data = this.responseText;
+                    data = JSON.parse(data);
+                    //document.getElementById("demo4").innerText = data;
+                    tab = `
+                    <table border="1">
+                        <tr><th>사번</th><th>이름</th><th>급여</th></tr>`;
+                        let empno;
+                        let ename;
+                        let sal;
+                        for (i in data) {
+                            empno = data[i].empno;
+                            ename = data[i].ename;
+                            sal = data[i].sal;
+
+                        tab = tab + `<tr>
+                            <td>${empno}</td>
+                            <td>${ename}</td>
+                            <td>${sal}</td> 
+                        </tr>`;
+                        //벡틱 내의 문자열 인터폴레이션은 ${ … }으로 표현식을 감싼다. 
+                        }
+                    tab = tab + `</table>`;
+                    document.getElementById("demo4").innerHTML=tab;
+                }
+
+            };
+            xhttp.open("GET", "emplist");
+            xhttp.send();
+        };
+
+
+
         //삭제
         function deleteEmp() {
             const xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function () {
                 if (this.readyState == 4 && this.status == 200) {
                     alert("직원 정보가 삭제되었습니다.")
+                    data = this.responseText;
+                    data = JSON.parse(data);
                 }
             };
-            xhttp.open("POST", "delete");
+            xhttp.open("DELETE", "delete");
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             queryString = "empno=" + document.getElementById("delempno").value; //delete를 위해선 empno 정보만 알면됨
             xhttp.send(queryString);
-        }
+        };
 
         //수정
         function updateEmp() {
@@ -82,7 +132,7 @@
                     document.getElementById("empno").value = document.getElementById('upempno').value;
                 }
             };
-            xhttp.open("POST", "update");
+            xhttp.open("PUT", "update");
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             queryString = "empno=" + document.getElementById("upempno").value
                 + "&ename=" + document.getElementById("upename").value
@@ -142,7 +192,7 @@
                     alert("직원 정보 호출!")
                     data = JSON.parse(data);
                     document.getElementById("demo2").innerHTML
-                    = "사번 : " + data.empno + "\n\n이름 : " + data.ename + "\n\n급여 : " + data.sal;
+                        = "사번 : " + data.empno + "\n\n이름 : " + data.ename + "\n\n급여 : " + data.sal;
                     document.getElementById("empno").value = data.empno;
                     document.getElementById("ename").value = data.ename;
                     document.getElementById("sal").value = data.sal;
@@ -154,7 +204,7 @@
 
         };
 
-    </script>
+    </script> -->
 </body>
 
 </html>

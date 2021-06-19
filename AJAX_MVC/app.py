@@ -42,7 +42,7 @@ def insertemp():
 
     return dao.empone(request.form.get('empno'))
 
-@app.route('/update',methods=['post'])
+@app.route('/update',methods=['put'])
 def updateemp():
 
     dao = EmpDAO()
@@ -51,13 +51,18 @@ def updateemp():
 
     return dao.empone(request.form.get('empno'))
 
-@app.route('/delete',methods=['post'])
+@app.route('/delete',methods=['delete'])
 def deleteemp():
-
     dao = EmpDAO()
     dto = EmpDTO(request.form.get('empno'),"",0)
     dao.empdelete(dto)
     return dao.empone(request.form.get('empno'))
+
+# 모든 직원정보를 요청 및 응답하는 함수
+@app.route('/emplist',methods=['get'])
+def emplist():
+    dao = EmpDAO()
+    return dao.empall()
 
 
     
