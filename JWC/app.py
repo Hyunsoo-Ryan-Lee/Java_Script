@@ -1,30 +1,30 @@
-import json
-from flask import Flask, jsonify, request, make_response
-from flask_jwt_extended import *
+from flask import Flask, request, jsonify, make_response, render_template,session
 import jwt
 import datetime
-import bcrypt
 from functools import wraps
 
 app = Flask(__name__)
-
 app.config['SECRET_KEY'] = 'encore'
 
-def token_req(f):
-    @wraps(f)
+def token_req(func):
+    @wraps(func)
     def decorated(*args, **kwargs):
         token = request.args.get('token')
 
         if not token:
-            return jsonify({'message' : 'Token is missing!'}), 403
+            return jsonify({'message' : 'Token is missing!'})
         try:
-            data = jwt.decode(token, app.config['SECRET_KEY'])
+            payload = jwt.decode(token, app.config['SECRET_KEY'])
         except:
-            return jsonify({'message' : 'Token is invalid!'}), 403
-
-        return f(*args, **kwargs)
+            return jsonify({'message' : 'Token is invalid!'})
     return decorated
 
+@app.route('/')
+def home():
+    if not session.get('logged_in'):
+        return render_template('login.html')
+    else:
+        return '현재 로그인 되어 있습니다.'
 
 @app.route('/unprotected')
 def unprotected():
@@ -33,18 +33,22 @@ def unprotected():
 @app.route('/protected')
 @token_req
 def protected():
-    return jsonify({'message' : 'This is only available for people'})
+    return 'JWT is verified. Welcome!'
 
-@app.route('/login')
+
+@app.route('/login', methods=['POST'])
 def login():
-    auth = request.authorization
+    if request.form['username'] and request.form['password'] == 'password':
+        session['logged_in'] = True
+        token = jwt.encode({
+            'user' : request.form['username'],
+            'experation' : str(datetime.datetime.utcnow() + datetime.timedelta(seconds=120))
+        },app.config['SECRET_KEY'])
 
-    if auth and auth.password == 'password':
-        token = jwt.encode({'user' : auth.username, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(seconds=30)}, app.config['SECRET_KEY'])
-        return jsonify({'token' : token})
-
-    return make_response('bad',401,{'WWW-Authenticate' : 'Basic realm="Login Required"'})
-
+        return ({'token' : token})
+    
+    else:
+        return make_response('Unable to verify', 403, {'WWW-Authenticate' : 'Basic realm="Login Required"'})
 
 if __name__ == '__main__':
     app.run(debug = True)

@@ -107,7 +107,7 @@ class EmpDAO:
                 # data가 여러개이므로 json 배열!
                 v = []
                 for row in rows:
-                    d = collections.OrderedDict())
+                    d = collections.OrderedDict()
                     d['empno'] = row[0]
                     d['ename'] = row[1]
                     d['sal'] = row[2]
